@@ -40,6 +40,7 @@
       margin: 0 auto;
       max-width: 600px;
       border-radius: 10px;
+      display: none;
     }
     .form-section input, .form-section textarea, .form-section select {
       width: 100%;
@@ -75,40 +76,16 @@
       margin-top: 5px;
       cursor: pointer;
       font-size: 0.9em;
-    }
-    #password-section {
       display: none;
     }
-    #menu-form-section {
+    #password-prompt {
       display: none;
-    }
-    .show-password-btn {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #f7941d;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .edit-menu-btn {
-      display: none;
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #f7941d;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .menu-item .edit-btn {
-      display: none;
+      background: white;
+      color: black;
+      padding: 20px;
+      max-width: 300px;
+      margin: 20px auto;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -122,15 +99,13 @@
     <button onclick="filterMenu('all')">Показать все</button>
   </nav>
 
-  <!-- Форма для ввода пароля -->
-  <section id="password-section" class="form-section">
-    <h2>Введите пароль для редактирования меню</h2>
-    <input type="password" id="password" placeholder="Пароль" />
+  <div id="password-prompt">
+    <h3>Введите пароль для редактирования меню</h3>
+    <input type="password" id="admin-password" placeholder="Пароль" />
     <button onclick="checkPassword()">Войти</button>
-  </section>
+  </div>
 
-  <!-- Форма для добавления и редактирования позиций меню -->
-  <section class="form-section" id="menu-form-section">
+  <section class="form-section" id="form-section">
     <h2 id="form-title">Добавить позицию</h2>
     <input type="text" id="name" placeholder="Название" />
     <textarea id="description" placeholder="Описание"></textarea>
@@ -142,59 +117,15 @@
 
   <section class="menu-section" id="menu"></section>
 
-  <!-- Кнопка для показа формы пароля -->
-  <button class="show-password-btn" onclick="showPasswordSection()">Редактировать меню</button>
-
-  <!-- Кнопка для редактирования меню, показывается только после ввода пароля -->
-  <button class="edit-menu-btn" onclick="showMenuForm()">Редактировать меню</button>
-
   <script>
-    // Инициализация данных меню и индекса редактирования
     let menuData = JSON.parse(localStorage.getItem('menuData')) || [];
     let editIndex = null;
-    const adminPassword = '459525'; // Новый пароль для редактирования
+    let isAdmin = false;
 
-    // Эта функция будет вызываться при загрузке страницы
-    window.onload = () => {
-      renderMenu(); // отображаем меню при загрузке страницы
-    };
-
-    // Показываем форму для ввода пароля
-    function showPasswordSection() {
-      document.getElementById('password-section').style.display = 'block';
-    }
-
-    // Проверка пароля и вход в режим редактирования
-    function checkPassword() {
-      const password = document.getElementById('password').value;
-      if (password === adminPassword) {
-        document.getElementById('password-section').style.display = 'none';
-        document.querySelector('.edit-menu-btn').style.display = 'block'; // Показываем кнопку редактирования
-        showEditButtons(); // Показываем кнопки редактирования под позициями меню
-      } else {
-        alert('Неверный пароль!');
-      }
-    }
-
-    // Показываем форму редактирования меню
-    function showMenuForm() {
-      document.getElementById('menu-form-section').style.display = 'block';
-    }
-
-    // Показываем кнопки редактирования под позициями меню
-    function showEditButtons() {
-      const editButtons = document.querySelectorAll('.menu-item .edit-btn');
-      editButtons.forEach(button => {
-        button.style.display = 'block'; // Показываем кнопки редактирования
-      });
-    }
-
-    // Функция сохранения в localStorage
     function saveToLocalStorage() {
       localStorage.setItem('menuData', JSON.stringify(menuData));
     }
 
-    // Функция добавления или редактирования позиции меню
     function submitItem() {
       const name = document.getElementById('name').value;
       const description = document.getElementById('description').value;
@@ -234,7 +165,6 @@
       }
     }
 
-    // Функция отображения меню
     function renderMenu(filter = 'all') {
       const menu = document.getElementById('menu');
       menu.innerHTML = '';
@@ -248,13 +178,12 @@
           <h3>${item.name}</h3>
           <p>${item.description}</p>
           <strong>${item.price} ₽</strong><br />
-          <button class="edit-btn" onclick="editItem(${menuData.indexOf(item)})">Редактировать</button>
+          <button style="${isAdmin ? 'display:inline-block' : 'display:none'}" onclick="editItem(${menuData.indexOf(item)})">Редактировать</button>
         `;
         menu.appendChild(el);
       });
     }
 
-    // Функция редактирования позиции меню
     function editItem(index) {
       const item = menuData[index];
       document.getElementById('name').value = item.name;
@@ -267,12 +196,10 @@
       editIndex = index;
     }
 
-    // Функция фильтрации меню по категории
     function filterMenu(category) {
       renderMenu(category);
     }
 
-    // Очистка формы после добавления или редактирования
     function clearForm() {
       document.getElementById('name').value = '';
       document.getElementById('description').value = '';
@@ -280,6 +207,46 @@
       document.getElementById('category').value = '';
       document.getElementById('image').value = '';
     }
+
+    function checkPassword() {
+      const password = document.getElementById('admin-password').value;
+      if (password === '459525') {
+        isAdmin = true;
+        document.getElementById('form-section').style.display = 'block';
+        document.getElementById('password-prompt').style.display = 'none';
+        renderMenu();
+      } else {
+        alert('Неверный пароль');
+      }
+    }
+
+    function createEditButtonOnce() {
+      if (!document.getElementById('edit-menu-btn')) {
+        const editBtn = document.createElement('button');
+        editBtn.id = 'edit-menu-btn';
+        editBtn.innerText = 'Редактировать меню';
+        editBtn.style.position = 'fixed';
+        editBtn.style.bottom = '10px';
+        editBtn.style.right = '10px';
+        editBtn.style.padding = '8px 12px';
+        editBtn.style.fontSize = '14px';
+        editBtn.style.zIndex = '1000';
+        editBtn.style.background = '#fff';
+        editBtn.style.color = '#f7941d';
+        editBtn.style.border = '1px solid #f7941d';
+        editBtn.style.cursor = 'pointer';
+
+        editBtn.onclick = () => {
+          document.getElementById('password-prompt').style.display = 'block';
+        };
+
+        document.body.appendChild(editBtn);
+      }
+    }
+
+    // Запуск
+    createEditButtonOnce();
+    renderMenu();
   </script>
 </body>
 </html>
