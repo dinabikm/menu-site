@@ -101,8 +101,12 @@
   <section class="menu-section" id="menu"></section>
 
   <script>
-    let menuData = [];
+    let menuData = JSON.parse(localStorage.getItem('menuData')) || [];
     let editIndex = null;
+
+    function saveToLocalStorage() {
+      localStorage.setItem('menuData', JSON.stringify(menuData));
+    }
 
     function submitItem() {
       const name = document.getElementById('name').value;
@@ -126,6 +130,7 @@
         } else {
           menuData.push(item);
         }
+        saveToLocalStorage();
         renderMenu();
         clearForm();
       };
@@ -184,6 +189,9 @@
       document.getElementById('category').value = '';
       document.getElementById('image').value = '';
     }
+
+    // при загрузке страницы показываем сохранённое меню
+    renderMenu();
   </script>
 </body>
 </html>
