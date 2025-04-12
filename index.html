@@ -8,8 +8,7 @@
     body {
       margin: 0;
       font-family: sans-serif;
-      background-color: #f7941d;
-    }
+      background-color: #f7941d;    }
     header {
       text-align: center;
       padding: 20px;
@@ -59,11 +58,21 @@
       border-radius: 10px;
       overflow: hidden;
       padding: 10px;
+      position: relative;
     }
     .menu-item img {
       width: 100%;
       height: 200px;
       object-fit: cover;
+    }
+    .menu-item button {
+      background: #f7941d;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin-top: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
     }
   </style>
 </head>
@@ -78,46 +87,57 @@
   </nav>
 
   <section class="form-section">
-    <h2>Добавить позицию</h2>
+    <h2 id="form-title">Добавить позицию</h2>
     <input type="text" id="name" placeholder="Название" />
     <textarea id="description" placeholder="Описание"></textarea>
     <input type="number" id="price" placeholder="Цена" />
     <input type="text" id="category" placeholder="Раздел (например, Корндоги, Напитки, Фри)" />
     <input type="file" id="image" accept="image/*" />
-    <button onclick="addItem()">Добавить</button>
+    <button onclick="submitItem()" id="submitBtn">Добавить</button>
   </section>
 
   <section class="menu-section" id="menu"></section>
 
   <script>
     let menuData = [];
+    let editIndex = null;
 
-    function addItem() {
+    function submitItem() {
       const name = document.getElementById('name').value;
       const description = document.getElementById('description').value;
       const price = document.getElementById('price').value;
       const category = document.getElementById('category').value;
-      const imageFile = document.getElementById('image').files[0];
+      const imageInput = document.getElementById('image');
 
-      if (!name || !description || !price || !category || !imageFile) {
+      if (!name || !description || !price || !category) {
         alert('Пожалуйста, заполните все поля.');
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const item = {
-          name,
-          description,
-          price,
-          category,
-          image: e.target.result
-        };
-        menuData.push(item);
+      const processItem = (imageSrc) => {
+        const item = { name, description, price, category, image: imageSrc };
+        if (editIndex !== null) {
+          menuData[editIndex] = item;
+          editIndex = null;
+          document.getElementById('form-title').innerText = 'Добавить позицию';
+          document.getElementById('submitBtn').innerText = 'Добавить';
+        } else {
+          menuData.push(item);
+        }
         renderMenu();
         clearForm();
       };
-      reader.readAsDataURL(imageFile);
+
+      if (imageInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          processItem(e.target.result);
+        };
+        reader.readAsDataURL(imageInput.files[0]);
+      } else {
+        const currentImage = editIndex !== null ? menuData[editIndex].image : '';
+        processItem(currentImage);
+      }
     }
 
     function renderMenu(filter = 'all') {
@@ -125,17 +145,30 @@
       menu.innerHTML = '';
       const filtered = filter === 'all' ? menuData : menuData.filter(item => item.category === filter);
 
-      for (const item of filtered) {
+      filtered.forEach((item, index) => {
         const el = document.createElement('div');
         el.className = 'menu-item';
         el.innerHTML = `
           <img src="${item.image}" alt="${item.name}" />
           <h3>${item.name}</h3>
           <p>${item.description}</p>
-          <strong>${item.price} ₽</strong>
+          <strong>${item.price} ₽</strong><br />
+          <button onclick="editItem(${menuData.indexOf(item)})">Редактировать</button>
         `;
         menu.appendChild(el);
-      }
+      });
+    }
+
+    function editItem(index) {
+      const item = menuData[index];
+      document.getElementById('name').value = item.name;
+      document.getElementById('description').value = item.description;
+      document.getElementById('price').value = item.price;
+      document.getElementById('category').value = item.category;
+      document.getElementById('image').value = '';
+      document.getElementById('form-title').innerText = 'Редактировать позицию';
+      document.getElementById('submitBtn').innerText = 'Сохранить изменения';
+      editIndex = index;
     }
 
     function filterMenu(category) {
