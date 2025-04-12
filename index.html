@@ -76,6 +76,9 @@
       cursor: pointer;
       font-size: 0.9em;
     }
+    #password-section {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -88,7 +91,15 @@
     <button onclick="filterMenu('all')">Показать все</button>
   </nav>
 
-  <section class="form-section">
+  <!-- Форма для ввода пароля -->
+  <section id="password-section" class="form-section">
+    <h2>Введите пароль для редактирования меню</h2>
+    <input type="password" id="password" placeholder="Пароль" />
+    <button onclick="checkPassword()">Войти</button>
+  </section>
+
+  <!-- Форма для добавления и редактирования позиций меню -->
+  <section class="form-section" id="menu-form-section">
     <h2 id="form-title">Добавить позицию</h2>
     <input type="text" id="name" placeholder="Название" />
     <textarea id="description" placeholder="Описание"></textarea>
@@ -104,11 +115,33 @@
     // Инициализация данных меню и индекса редактирования
     let menuData = JSON.parse(localStorage.getItem('menuData')) || [];
     let editIndex = null;
+    const adminPassword = '459525'; // Новый пароль для редактирования
 
     // Эта функция будет вызываться при загрузке страницы
     window.onload = () => {
       renderMenu(); // отображаем меню при загрузке страницы
+      checkIfLoggedIn(); // Проверяем, вошел ли пользователь
     };
+
+    // Проверка пароля и вход в режим редактирования
+    function checkPassword() {
+      const password = document.getElementById('password').value;
+      if (password === adminPassword) {
+        document.getElementById('password-section').style.display = 'none';
+        document.getElementById('menu-form-section').style.display = 'block';
+      } else {
+        alert('Неверный пароль!');
+      }
+    }
+
+    // Проверка, вошел ли пользователь
+    function checkIfLoggedIn() {
+      if (document.getElementById('password-section').style.display === 'none') {
+        document.getElementById('menu-form-section').style.display = 'block';
+      } else {
+        document.getElementById('password-section').style.display = 'block';
+      }
+    }
 
     // Функция сохранения в localStorage
     function saveToLocalStorage() {
