@@ -77,6 +77,9 @@
       font-size: 0.9em;
     }
     #password-section {
+      display: block;
+    }
+    #menu-form-section {
       display: none;
     }
   </style>
@@ -120,7 +123,6 @@
     // Эта функция будет вызываться при загрузке страницы
     window.onload = () => {
       renderMenu(); // отображаем меню при загрузке страницы
-      checkIfLoggedIn(); // Проверяем, вошел ли пользователь
     };
 
     // Проверка пароля и вход в режим редактирования
@@ -131,15 +133,6 @@
         document.getElementById('menu-form-section').style.display = 'block';
       } else {
         alert('Неверный пароль!');
-      }
-    }
-
-    // Проверка, вошел ли пользователь
-    function checkIfLoggedIn() {
-      if (document.getElementById('password-section').style.display === 'none') {
-        document.getElementById('menu-form-section').style.display = 'block';
-      } else {
-        document.getElementById('password-section').style.display = 'block';
       }
     }
 
