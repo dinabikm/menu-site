@@ -101,13 +101,21 @@
   <section class="menu-section" id="menu"></section>
 
   <script>
+    // Инициализация данных меню и индекса редактирования
     let menuData = JSON.parse(localStorage.getItem('menuData')) || [];
     let editIndex = null;
 
+    // Эта функция будет вызываться при загрузке страницы
+    window.onload = () => {
+      renderMenu(); // отображаем меню при загрузке страницы
+    };
+
+    // Функция сохранения в localStorage
     function saveToLocalStorage() {
       localStorage.setItem('menuData', JSON.stringify(menuData));
     }
 
+    // Функция добавления или редактирования позиции меню
     function submitItem() {
       const name = document.getElementById('name').value;
       const description = document.getElementById('description').value;
@@ -147,6 +155,7 @@
       }
     }
 
+    // Функция отображения меню
     function renderMenu(filter = 'all') {
       const menu = document.getElementById('menu');
       menu.innerHTML = '';
@@ -166,6 +175,7 @@
       });
     }
 
+    // Функция редактирования позиции меню
     function editItem(index) {
       const item = menuData[index];
       document.getElementById('name').value = item.name;
@@ -178,10 +188,12 @@
       editIndex = index;
     }
 
+    // Функция фильтрации меню по категории
     function filterMenu(category) {
       renderMenu(category);
     }
 
+    // Очистка формы после добавления или редактирования
     function clearForm() {
       document.getElementById('name').value = '';
       document.getElementById('description').value = '';
@@ -189,9 +201,6 @@
       document.getElementById('category').value = '';
       document.getElementById('image').value = '';
     }
-
-    // при загрузке страницы показываем сохранённое меню
-    renderMenu();
   </script>
 </body>
 </html>
